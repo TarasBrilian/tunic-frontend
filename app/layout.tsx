@@ -15,7 +15,7 @@ const lora = Lora({
 });
 
 export const metadata: Metadata = {
-  title: "Tunic — Beautiful Addresses, Made for You",
+  title: "Tunic - Beautiful Addresses, Made for You",
   description: "Vanity EVM address generator",
 };
 

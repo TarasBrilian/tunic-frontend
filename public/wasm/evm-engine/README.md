@@ -302,10 +302,10 @@ Instructions for this will be included in the README and on the site.
 
 ```bash
 cd engine
-wasm-pack build --target web --out-dir ../frontend/public/wasm
+wasm-pack build --target web --out-dir ../web/public/wasm
 ```
 
-Output files placed in `frontend/public/wasm/`:
+Output files placed in `web/public/wasm/`:
 - `tunic_engine.js`
 - `tunic_engine_bg.wasm`
 - `package.json`
@@ -313,12 +313,12 @@ Output files placed in `frontend/public/wasm/`:
 ### Frontend
 
 ```bash
-cd frontend
-pnpm install
-pnpm run build
+cd web
+npm install
+npm run build
 ```
 
-Output is a static site in `frontend/out/`, ready for deployment to Vercel or Cloudflare Pages.
+Output is a static site in `web/out/`, ready for deployment to Vercel or Cloudflare Pages.
 
 ---
 

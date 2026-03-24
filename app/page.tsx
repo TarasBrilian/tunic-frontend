@@ -3,10 +3,13 @@
 import { useState } from "react";
 import { useVanityGenerator } from "@/hooks/useVanityGenerator";
 import { LeetspeakPicker } from "@/components/LeetspeakPicker";
+import { Base58Input } from "@/components/Base58Input";
 import { ResultCard } from "@/components/ResultCard";
+
 import Link from "next/link";
 
 export default function Home() {
+  const [network, setNetwork] = useState<'evm' | 'solana'>('evm');
   const [position, setPosition] = useState<"prefix" | "suffix" | "combine">("suffix");
   const [prefixVariant, setPrefixVariant] = useState<string | null>(null);
   const [suffixVariant, setSuffixVariant] = useState<string | null>(null);
@@ -14,7 +17,7 @@ export default function Home() {
   const { state, result, error, startGeneration, reset } = useVanityGenerator();
 
   const handleGenerate = () => {
-    startGeneration(prefixVariant || "", suffixVariant || "", position);
+    startGeneration(prefixVariant || "", suffixVariant || "", position, network);
   };
 
   const handleReset = () => {
@@ -23,11 +26,18 @@ export default function Home() {
     setSuffixVariant(null);
   };
 
+  const switchNetwork = (net: 'evm' | 'solana') => {
+    if (isBusy) return;
+    setNetwork(net);
+    handleReset();
+  };
+
   const isBusy = state === "generating";
   const isReady = position === "combine"
     ? (!!prefixVariant || !!suffixVariant)
     : (position === "prefix" ? !!prefixVariant : !!suffixVariant);
-  const activePattern = position === "prefix" ? (prefixVariant || "") : (suffixVariant || "");
+  
+  const addrPrefix = network === 'evm' ? '0x' : '';
 
   return (
     <div className="page">
@@ -37,9 +47,26 @@ export default function Home() {
         beautiful addresses, made for you
       </div>
 
+      <div className="network-select">
+        <button 
+          className={`net-btn ${network === 'evm' ? 'active' : ''}`}
+          onClick={() => switchNetwork('evm')}
+          disabled={isBusy}
+        >
+          EVM
+        </button>
+        <button 
+          className={`net-btn ${network === 'solana' ? 'active' : ''}`}
+          onClick={() => switchNetwork('solana')}
+          disabled={isBusy}
+        >
+          Solana
+        </button>
+      </div>
+
       <div className="card">
         <div className="card-title">Generate your address</div>
-        <div className="card-sub">Vanity EVM address generator</div>
+        <div className="card-sub">Vanity {network.toUpperCase()} address generator</div>
 
         {error && (
           <div className="warn-box" style={{ borderColor: 'var(--danger)', background: '#FDF0EF', marginBottom: '1.25rem' }}>
@@ -51,30 +78,59 @@ export default function Home() {
         <div>
           {position === "combine" ? (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <LeetspeakPicker
-                label="Prefix"
-                variant={prefixVariant}
-                onChange={setPrefixVariant}
-                disabled={isBusy}
-                position="prefix"
-              />
-              <LeetspeakPicker
-                label="Suffix"
-                variant={suffixVariant}
-                onChange={setSuffixVariant}
-                disabled={isBusy}
-                position="suffix"
-              />
+              {network === 'evm' ? (
+                <>
+                  <LeetspeakPicker
+                    label="Prefix"
+                    variant={prefixVariant}
+                    onChange={setPrefixVariant}
+                    disabled={isBusy}
+                    position="prefix"
+                  />
+                  <LeetspeakPicker
+                    label="Suffix"
+                    variant={suffixVariant}
+                    onChange={setSuffixVariant}
+                    disabled={isBusy}
+                    position="suffix"
+                  />
+                </>
+              ) : (
+                <>
+                  <Base58Input
+                    label="Prefix"
+                    value={prefixVariant}
+                    onChange={setPrefixVariant}
+                    disabled={isBusy}
+                  />
+                  <Base58Input
+                    label="Suffix"
+                    value={suffixVariant}
+                    onChange={setSuffixVariant}
+                    disabled={isBusy}
+                  />
+                </>
+              )}
             </div>
           ) : (
-            <LeetspeakPicker
-              variant={position === "prefix" ? prefixVariant : suffixVariant}
-              onChange={position === "prefix" ? setPrefixVariant : setSuffixVariant}
-              disabled={isBusy}
-              position={position}
-            />
+            network === 'evm' ? (
+              <LeetspeakPicker
+                variant={position === "prefix" ? prefixVariant : suffixVariant}
+                onChange={position === "prefix" ? setPrefixVariant : setSuffixVariant}
+                disabled={isBusy}
+                position={position}
+              />
+            ) : (
+              <Base58Input
+                label={position.charAt(0).toUpperCase() + position.slice(1)}
+                value={position === "prefix" ? prefixVariant : suffixVariant}
+                onChange={position === "prefix" ? setPrefixVariant : setSuffixVariant}
+                disabled={isBusy}
+              />
+            )
           )}
         </div>
+
 
         {(prefixVariant || suffixVariant) && (
           <div style={{ marginTop: '1.25rem', marginBottom: '1.5rem', textAlign: 'center' }}>
@@ -88,17 +144,17 @@ export default function Home() {
             }}>
               {position === "combine" ? (
                 <>
-                  0x<span style={{ color: 'var(--accent)', fontWeight: 500 }}>{prefixVariant || "..."}</span>
+                  {addrPrefix}<span style={{ color: 'var(--accent)', fontWeight: 500 }}>{prefixVariant || "..."}</span>
                   ...
                   <span style={{ color: 'var(--accent)', fontWeight: 500 }}>{suffixVariant || "..."}</span>
                 </>
               ) : position === "prefix" ? (
                 <>
-                  0x<span style={{ color: 'var(--accent)', fontWeight: 500 }}>{prefixVariant}</span>...
+                  {addrPrefix}<span style={{ color: 'var(--accent)', fontWeight: 500 }}>{prefixVariant}</span>...
                 </>
               ) : (
                 <>
-                  0x...<span style={{ color: 'var(--accent)', fontWeight: 500 }}>{suffixVariant}</span>
+                  {addrPrefix}...<span style={{ color: 'var(--accent)', fontWeight: 500 }}>{suffixVariant}</span>
                 </>
               )}
             </div>
@@ -110,7 +166,7 @@ export default function Home() {
             className={`pos-btn ${position === "suffix" ? "active" : ""}`}
             onClick={() => setPosition("suffix")}
             disabled={isBusy}
-            title="Suffix = pattern at the end of the address ex: 0x...123"
+            title="Suffix = pattern at the end of the address"
           >
             suffix
           </button>
@@ -118,7 +174,7 @@ export default function Home() {
             className={`pos-btn ${position === "prefix" ? "active" : ""}`}
             onClick={() => setPosition("prefix")}
             disabled={isBusy}
-            title="Prefix = pattern at the front of the address ex: 0x123..."
+            title="Prefix = pattern at the front of the address"
           >
             prefix
           </button>
@@ -126,7 +182,7 @@ export default function Home() {
             className={`pos-btn ${position === "combine" ? "active" : ""}`}
             onClick={() => setPosition("combine")}
             disabled={isBusy}
-            title="Combine = starts and ends with pattern ex: 0x123...123"
+            title="Combine = starts and ends with pattern"
           >
             combine
           </button>
@@ -162,12 +218,14 @@ export default function Home() {
         {state === "done" && result && (
           <ResultCard
             result={result}
+            network={network}
             position={position}
             prefix={prefixVariant || ""}
             suffix={suffixVariant || ""}
             onReset={handleReset}
           />
         )}
+
       </div>
 
       <div className="footer">
@@ -179,3 +237,4 @@ export default function Home() {
     </div>
   );
 }
+

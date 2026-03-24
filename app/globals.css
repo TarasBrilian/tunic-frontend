@@ -234,6 +234,35 @@ html, body {
   border-color: var(--border-2);
   background: var(--bg);
 }
+/* Network selection */
+.network-select {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 1.5rem;
+}
+.net-btn {
+  padding: 6px 14px;
+  font-size: 11px;
+  font-family: var(--mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 0.5px solid var(--border);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: all 0.14s;
+}
+.net-btn.active {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #fff;
+}
+.net-btn:not(.active):hover {
+  border-color: var(--border-2);
+  background: var(--bg);
+  color: var(--ink);
+}
 
 /* Compute button */
 .compute-btn {

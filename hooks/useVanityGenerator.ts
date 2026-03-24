@@ -6,8 +6,10 @@ export type GenerationState = "idle" | "generating" | "done" | "error";
 
 export interface VanityResult {
   private_key: string;
+  private_key_json?: string;
   address: string;
 }
+
 
 export function useVanityGenerator() {
   const [state, setState] = useState<GenerationState>("idle");
@@ -20,7 +22,7 @@ export function useVanityGenerator() {
     workersRef.current = [];
   }, []);
 
-  const startGeneration = useCallback((prefix: string, suffix: string, position: "prefix" | "suffix" | "combine") => {
+  const startGeneration = useCallback((prefix: string, suffix: string, position: "prefix" | "suffix" | "combine", network: 'evm' | 'solana' = 'evm') => {
     terminateAll();
     setState("generating");
     setResult(null);
@@ -62,12 +64,13 @@ export function useVanityGenerator() {
         }
       };
 
-      worker.postMessage({ prefix, suffix, position });
+      worker.postMessage({ prefix, suffix, position, network });
       newWorkers.push(worker);
     }
 
     workersRef.current = newWorkers;
   }, [terminateAll]);
+
 
   const reset = useCallback(() => {
     terminateAll();
