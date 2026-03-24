@@ -28,6 +28,7 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${dmMono.variable} ${lora.variable}`}
+      suppressHydrationWarning
     >
       <body>{children}</body>
     </html>

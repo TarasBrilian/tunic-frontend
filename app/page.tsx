@@ -10,7 +10,7 @@ import Link from "next/link";
 
 export default function Home() {
   const [network, setNetwork] = useState<'evm' | 'solana'>('evm');
-  const [position, setPosition] = useState<"prefix" | "suffix" | "combine">("suffix");
+  const [position, setPosition] = useState<"prefix" | "suffix" | "combine">("prefix");
   const [prefixVariant, setPrefixVariant] = useState<string | null>(null);
   const [suffixVariant, setSuffixVariant] = useState<string | null>(null);
 
@@ -36,7 +36,7 @@ export default function Home() {
   const isReady = position === "combine"
     ? (!!prefixVariant || !!suffixVariant)
     : (position === "prefix" ? !!prefixVariant : !!suffixVariant);
-  
+
   const addrPrefix = network === 'evm' ? '0x' : '';
 
   return (
@@ -48,14 +48,14 @@ export default function Home() {
       </div>
 
       <div className="network-select">
-        <button 
+        <button
           className={`net-btn ${network === 'evm' ? 'active' : ''}`}
           onClick={() => switchNetwork('evm')}
           disabled={isBusy}
         >
           EVM
         </button>
-        <button 
+        <button
           className={`net-btn ${network === 'solana' ? 'active' : ''}`}
           onClick={() => switchNetwork('solana')}
           disabled={isBusy}
@@ -163,20 +163,20 @@ export default function Home() {
 
         <div className="position-row">
           <button
-            className={`pos-btn ${position === "suffix" ? "active" : ""}`}
-            onClick={() => setPosition("suffix")}
-            disabled={isBusy}
-            title="Suffix = pattern at the end of the address"
-          >
-            suffix
-          </button>
-          <button
             className={`pos-btn ${position === "prefix" ? "active" : ""}`}
             onClick={() => setPosition("prefix")}
             disabled={isBusy}
             title="Prefix = pattern at the front of the address"
           >
             prefix
+          </button>
+          <button
+            className={`pos-btn ${position === "suffix" ? "active" : ""}`}
+            onClick={() => setPosition("suffix")}
+            disabled={isBusy}
+            title="Suffix = pattern at the end of the address"
+          >
+            suffix
           </button>
           <button
             className={`pos-btn ${position === "combine" ? "active" : ""}`}

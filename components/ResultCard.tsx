@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { VanityResult } from "@/hooks/useVanityGenerator";
+import { KeyModal } from "./KeyModal";
 
 interface ResultCardProps {
   result: VanityResult;
@@ -14,29 +15,6 @@ interface ResultCardProps {
 
 export function ResultCard({ result, network, position, prefix, suffix, onReset }: ResultCardProps) {
   const [showKey, setShowKey] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [jsonCopied, setJsonCopied] = useState(false);
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(result.private_key);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    } catch (err) {
-      console.error("Clipboard write failed", err);
-    }
-  };
-
-  const handleCopyJson = async () => {
-    if (!result.private_key_json) return;
-    try {
-      await navigator.clipboard.writeText(result.private_key_json);
-      setJsonCopied(true);
-      setTimeout(() => setJsonCopied(false), 1500);
-    } catch (err) {
-      console.error("Clipboard write failed", err);
-    }
-  };
 
   const renderAddress = () => {
     const fullAddr = result.address;
@@ -89,42 +67,20 @@ export function ResultCard({ result, network, position, prefix, suffix, onReset 
         </div>
       </div>
 
-      <div className={`pk-section ${showKey ? "visible" : "hidden"}`}>
-        <div className="result-label" style={{ marginBottom: "5px" }}>Private key</div>
-        <div className="pk-value" style={{ fontSize: network === 'solana' ? '12px' : '14px' }}>
-          {result.private_key}
-        </div>
-        
-        {result.private_key_json && (
-          <>
-            <div className="result-label" style={{ marginTop: "15px", marginBottom: "5px" }}>Secret key (JSON)</div>
-            <div className="pk-value" style={{ fontSize: '11px', maxHeight: '60px', overflowY: 'auto' }}>
-              {result.private_key_json}
-            </div>
-          </>
-        )}
-
-        <div className="action-row">
-          <button className="action-btn" onClick={handleCopy}>
-            {copied ? "Copied" : "Copy key"}
-          </button>
-          {result.private_key_json && (
-            <button className="action-btn" onClick={handleCopyJson}>
-              {jsonCopied ? "Copied JSON" : "Copy JSON"}
-            </button>
-          )}
-          <button className="action-btn" onClick={onReset}>Generate another</button>
-        </div>
+      <div className="action-row" id="confirm-row">
+        <button className="action-btn confirm" onClick={() => setShowKey(true)}>
+          I understand — show private key
+        </button>
+        <button className="action-btn" onClick={onReset}>Generate another</button>
       </div>
 
-
-      {!showKey && (
-        <div className="action-row" id="confirm-row">
-          <button className="action-btn confirm" onClick={() => setShowKey(true)}>
-            I understand — show private key
-          </button>
-        </div>
-      )}
+      <KeyModal 
+        isOpen={showKey}
+        onClose={() => setShowKey(false)}
+        network={network}
+        privateKey={result.private_key}
+        privateKeyJson={result.private_key_json}
+      />
     </div>
   );
 }
