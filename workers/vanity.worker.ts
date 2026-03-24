@@ -10,10 +10,15 @@ self.onmessage = async (event: MessageEvent) => {
     const wasmModule = await import(/* webpackIgnore: true */ `${self.location.origin}${wasmPath}`);
     const { default: init, generate_vanity } = wasmModule;
     
-    await init(`${self.location.origin}${wasmBgPath}`);
+    await init({ module_or_path: `${self.location.origin}${wasmBgPath}` });
     
     const jsonResult = generate_vanity(prefix, suffix, position);
     const result = JSON.parse(jsonResult);
+    
+    if (result.error) {
+      self.postMessage({ type: "ERROR", error: result.error });
+      return;
+    }
     
     self.postMessage({ type: "DONE", result });
   } catch (err: any) {

@@ -210,10 +210,10 @@ codegen-units = 1
 
 ```bash
 # EVM engine
-wasm-pack build engine/evm-engine --target web --out-dir frontend/public/wasm/evm
+wasm-pack build --target web --out-dir ../../frontend/public/wasm/evm-engine
 
 # Solana engine (once ready)
-wasm-pack build engine/solana-engine --target web --out-dir frontend/public/wasm/solana
+wasm-pack build --target web --out-dir ../../frontend/public/wasm/solana-engine
 ```
 
 ### Run frontend
